@@ -1,0 +1,17 @@
+--必须配置
+thread = 8
+cpath = "./skynet/cservice/?.so"
+bootstrap = "snlua bootstrap"
+--bootstrap 配置项
+start = "main" --主服务入口
+harbor = 0 --不使用主从结点模式
+--lua配置项
+lualoader = "./skynet/lualib/loader.lua"
+luaservice = "./service/?.lua;".."./service/?/init.lua;".."./skynet/service/?.lua;".."./skynet/service/?/init.lua"
+lua_path = "./etc/?.lua;".."./lualib/?.lua;".."./skynet/lualib/?.lua;".."./skynet/lualib/?/init.lua"
+lua_cpath = "./luaclib/?.so;".."./skynet/luaclib/?.so"
+--后台模式(必要时开启)
+--dameon = "./skynet.pid"
+--logger = "./userlog"
+--结点
+node = "node1"

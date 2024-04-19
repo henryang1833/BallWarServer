@@ -1,0 +1,23 @@
+[:00000002] LAUNCH snlua bootstrap
+[:00000003] LAUNCH snlua launcher
+[:00000004] LAUNCH snlua cdummy
+[:00000005] LAUNCH harbor 0 4
+[:00000006] LAUNCH snlua datacenterd
+[:00000007] LAUNCH snlua service_mgr
+[:00000008] LAUNCH snlua main
+[:00000009] LAUNCH snlua clusterd
+[:00000008] [start main]
+[:0000000a] LAUNCH snlua nodemgr nodemgr 0
+[:0000000b] LAUNCH snlua gate
+[:0000000b] Listen on 127.0.0.1:7771
+[:0000000c] LAUNCH snlua gateway gateway 1
+[:0000000c] Listen socket :0.0.0.0:8001
+[:0000000d] LAUNCH snlua gateway gateway 2
+[:0000000d] Listen socket :0.0.0.0:8002
+[:0000000e] LAUNCH snlua login login 1
+[:0000000f] LAUNCH snlua login login 2
+[:00000010] LAUNCH snlua agentmgr agentmgr 0
+[:00000011] LAUNCH snlua scene scene 1001
+[:00000012] LAUNCH snlua scene scene 1002
+[:00000008] KILL self
+[:00000002] KILL self
