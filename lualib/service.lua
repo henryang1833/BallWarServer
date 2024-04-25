@@ -24,7 +24,6 @@ function hex(str)
 end
 
 local dispatch = function(session, address, cmd, ...)
-    -- skynet.error("recv session "..hex(session).." from "..hex(address).." and the content is "..cmd)
     local fun = M.resp[cmd]
     if not fun then
         skynet.ret()

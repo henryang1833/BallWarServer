@@ -6,17 +6,18 @@ s.client = {}
 
 require "scene"
 
-function hex(str)
+local function hex(str)
     if str==nil or tonumber(str)==nil then
         return "nil"
     end
     return string.format("%x",tonumber(str))
 end
 
+
 s.resp.client = function (source,cmd,msg)
-    skynet.error("s.resp.client,source:"..hex(source)..",cmd:"..cmd..",msg:"..table.concat(msg,","))
+    -- skynet.error("s.resp.client,source:"..hex(source)..",cmd:"..cmd..",msg:"..table.concat(msg,","))
     s.gate = source
-    if s.client[cmd] then
+    if s.client[cmd] then --client 是客户发来的消息
         local ret_msg = s.client[cmd](msg,source)
         if ret_msg then
             skynet.send(source,"lua","send",s.id,ret_msg)

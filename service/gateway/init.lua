@@ -46,10 +46,11 @@ local str_unpack = function(msgstr)
     return msg[1], msg
 end
 
-local str_pack = function(cmd, msg)
+local str_pack = function(msg)
     return table.concat(msg, ",") .. "\r\n"
 end
 
+-- 网关服务器处理消息逻辑
 local process_msg = function(fd, msgstr)
     local cmd, msg = str_unpack(msgstr)
     -- skynet.error("recv " .. fd .. " [" .. cmd .. "] {" .. table.concat(msg, ",") .. "}")
@@ -63,7 +64,7 @@ local process_msg = function(fd, msgstr)
         local loginid = math.random(1, #nodecfg.login)
         local login = "login" .. loginid
         skynet.send(login, "lua", "client", fd, cmd, msg)
-        --完成登录流程
+    --完成登录流程
     else
         local gplayer = players[playerid]
         local agent = gplayer.agent
@@ -71,6 +72,7 @@ local process_msg = function(fd, msgstr)
     end
 end
 
+-- 从消息缓冲区中取出协议消息
 local process_buff = function(fd, readbuff)
     while true do
         local msgstr, rest = string.match(readbuff, "(.-)\r\n(.*)")
@@ -93,7 +95,7 @@ local disconnect = function(fd)
     --还没完成登录
     if not playerid then
         return
-        --已在游戏中
+    --已在游戏中
     else
         players[playerid] = nil
         local reason = "断线"
@@ -165,7 +167,7 @@ s.resp.send_by_fd = function(source, fd, msg)
         return
     end
 
-    local buff = str_pack(msg[1], msg)
+    local buff = str_pack(msg)
     -- skynet.error("send " .. hex(fd) .. " [" .. msg[1] .. "] {" .. table.concat(msg, ",") .. "}")
     socket.write(fd, buff)
     -- skynet.error("len:" .. string.len(buff))
