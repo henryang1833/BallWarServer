@@ -95,7 +95,7 @@ end
 resp.enter = function(playerid, node, agent)
     local enter_msg = nil
     if balls[playerid] then
-        enter_msg = {"enter", 1, "已在场景中，无需重复请求!"}
+        enter_msg = {"enter", 1, "alerdayinscene!"}
         send(node, agent, "send", enter_msg)
         return false
     end
@@ -104,12 +104,12 @@ resp.enter = function(playerid, node, agent)
     b.node = node
     b.agent = agent
     -- 通知所有场景服务器中的玩家，有新玩家加入
-    local addball_msg = {"addball", playerid, b.x, b.y, b.size,b.score}
+    local addball_msg = {"addball", playerid, b.x, b.y, b.size, b.score}
     broadcast(addball_msg)
     balls[playerid] = b
 
     -- 回应请求加入的玩家
-    enter_msg = {"enter", 0, "进入成功"}
+    enter_msg = {"enter", 0, "success"}
     send(b.node, b.agent, "send", enter_msg)
     -- 单独给新加入玩家发战场信息
     send(b.node, b.agent, "send", balllist_msg())
@@ -149,6 +149,7 @@ end
 
 resp.kill = function(player_id, session_id, secondball_id)
     local b1 = balls[player_id]
+    secondball_id = tonumber(secondball_id)
     local b2 = balls[secondball_id]
     if not b1 or not b2 then
         return
@@ -180,6 +181,7 @@ end
 
 resp.eat = function(player_id, session_id, food_id)
     local b = balls[player_id]
+    food_id = tonumber(food_id)
     local f = foods[food_id]
     if not b or not f then
         return
@@ -200,7 +202,7 @@ end
 
 resp.move = function(player_id, session_id, input_x, input_y, dealt_time)
     local b = balls[player_id]
-    if not b or dealt_time > 1/40 then
+    if not b or tonumber(dealt_time) > 1 / 40 then
         return false
     end
     -- 应用输入
@@ -221,25 +223,29 @@ local function update(frame)
     -- 1.处理客户端输入
     local len = #messages
     for i = 1, len, 1 do
+        -- 从消息队列中取出消息
         local msg = messages[1]
+        table.remove(messages, 1) -- 删除消息
+
+        -- 调用响应消息处理函数
         local cmd = msg[1]
         local fun = resp[cmd]
-        -- 调用响应消息处理函数
-        if fun then
-            local ret = table.pack(xpcall(fun, traceback, table.unpack(msg, 2)))
-            local isok = ret[1]
-            if not isok then
-                skynet.error(table.concat(ret, ",", 2));
-                skynet.ret()
-                return
-            else
-                skynet.retpack(table.unpack(ret, 2))
-            end
+        if cmd~="move" then
+            skynet.error("update:" .. table.concat(msg,","))
         end
-        table.remove(messages, 1)
+
+        if fun then
+            local isok, res = xpcall(fun, traceback, table.unpack(msg, 2))
+            if not isok then
+                skynet.error(res);
+            end
+        else
+            skynet.error("No fun " .. cmd);
+        end
     end
     -- 2.发送move消息
     for id, msg in pairs(pending_movemsg_outputs) do
+        pending_movemsg_outputs[id] = nil
         broadcast(msg)
     end
     -- 3.添加food
@@ -271,6 +277,7 @@ end
 local function dispatch(session, address, ...)
     local msg = {...}
     table.insert(messages, msg)
+    skynet.retpack("true")
 end
 
 skynet.start(function()

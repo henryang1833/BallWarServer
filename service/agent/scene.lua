@@ -33,13 +33,13 @@ end
 
 s.client.enter = function(msg)
     if s.sname then
-        return {"enter", 1, "已在场景"}
+        return {"enter", 1, "agent:alreadyinscene"}
     end
     local snode, sid = random_scene()
     local sname = "scene" .. sid
     local isok = s.call(snode, sname, "enter", s.id, mynode, skynet.self())
     if not isok then
-        return {"enter", 1, "进入失败"}
+        return {"enter", 1, "agent:enterfail"}
     end
     s.snode = snode
     s.sname = sname
@@ -63,8 +63,7 @@ s.resp.kick = function(source)
 end
 
 s.client.move = function(msg)
-    skynet.error("s.client.move msg:" .. table.concat(msg, ","))
-    if not s.sname then -------------s.sname == nil?
+    if not s.sname then
         skynet.error("not s.sname:" .. s.sname)
         return
     end

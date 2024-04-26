@@ -12,7 +12,7 @@ function hex(str)
     return string.format("%x", tonumber(str))
 end
 
---连接类
+-- 连接类
 function conn()
     local m = {
         fd = nil,
@@ -21,12 +21,12 @@ function conn()
     return m
 end
 
---玩家类
+-- 玩家类
 function gateplayer()
     local m = {
         playerid = nil,
         agent = nil,
-        conn = nil,
+        conn = nil
     }
     return m
 end
@@ -57,14 +57,14 @@ local process_msg = function(fd, msgstr)
 
     local conn = conns[fd]
     local playerid = conn.playerid
-    --尚未完成登录流程
+    -- 尚未完成登录流程
     if not playerid then
         local node = skynet.getenv("node")
         local nodecfg = runconfig[node]
         local loginid = math.random(1, #nodecfg.login)
         local login = "login" .. loginid
         skynet.send(login, "lua", "client", fd, cmd, msg)
-    --完成登录流程
+        -- 完成登录流程
     else
         local gplayer = players[playerid]
         local agent = gplayer.agent
@@ -92,10 +92,10 @@ local disconnect = function(fd)
     end
 
     local playerid = c.playerid
-    --还没完成登录
+    -- 还没完成登录
     if not playerid then
         return
-    --已在游戏中
+        -- 已在游戏中
     else
         players[playerid] = nil
         local reason = "断线"
@@ -124,7 +124,6 @@ s.resp.kick = function(source, playerid)
     --------------------------
 end
 
-
 local recv_loop = function(fd)
     socket.start(fd)
     skynet.error("socket connected " .. hex(fd))
@@ -152,7 +151,6 @@ local connect = function(fd, addr)
 end
 
 function s.init()
-    -- skynet.error("[start]"..s.name.." "..s.id)
     local node = skynet.getenv("node")
     local nodecfg = runconfig[node]
     local port = nodecfg.gateway[s.id].port
@@ -166,15 +164,8 @@ s.resp.send_by_fd = function(source, fd, msg)
     if not conns[fd] then
         return
     end
-
     local buff = str_pack(msg)
-    -- skynet.error("send " .. hex(fd) .. " [" .. msg[1] .. "] {" .. table.concat(msg, ",") .. "}")
     socket.write(fd, buff)
-    -- skynet.error("len:" .. string.len(buff))
-    -- for i = 1, string.len(buff) do
-    --     local ascii_val = string.byte(buff, i)
-    --     skynet.error("Character:"..buff:sub(i, i).. ",ASCII:"..ascii_val)
-    -- end
 end
 
 s.resp.send = function(source, playerid, msg)
@@ -192,7 +183,7 @@ end
 
 s.resp.sure_agent = function(source, fd, playerid, agent)
     local conn = conns[fd]
-    if not conn then --登录过程中已经下线
+    if not conn then -- 登录过程中已经下线
         skynet.call("agentmgr", "lua", "reqkick", playerid, "未完成登录即下线")
         return false
     end
