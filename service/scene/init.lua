@@ -72,7 +72,7 @@ local function ball()
         y = math.random(-50, 50),
         size = 0.1,
         score = 1,
-        speed = 1
+        speed = 1.5
     }
     return m
 end
@@ -206,8 +206,9 @@ resp.move = function(player_id, session_id, input_x, input_y, dealt_time)
         return false
     end
     -- 应用输入
-    b.x = b.x + b.speed * input_x * dealt_time;
-    b.y = b.y + b.speed * input_y * dealt_time;
+
+    b.x = math.max(math.min(b.x + b.speed * input_x * dealt_time, 50 - b.size / 2), b.size / 2 - 50);
+    b.y = math.max(math.min(b.y + b.speed * input_y * dealt_time, 50 - b.size / 2), b.size / 2 - 50);
     -- 准备要回复的消息
     local msg = {"move", session_id, player_id, b.x, b.y, b.size, b.score}
     pending_movemsg_outputs[player_id] = msg -- 之后的sessionId大于现在的sessionId，因为TCP保证有序性
@@ -230,8 +231,8 @@ local function update(frame)
         -- 调用响应消息处理函数
         local cmd = msg[1]
         local fun = resp[cmd]
-        if cmd~="move" then
-            skynet.error("update:" .. table.concat(msg,","))
+        if cmd ~= "move" then
+            skynet.error("update:" .. table.concat(msg, ","))
         end
 
         if fun then
